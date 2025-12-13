@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   barcode: string;
   category: string;
+  categoryId?:string;
   stock: number;
   color?: string; // Just for UI decoration
 }
