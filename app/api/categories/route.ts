@@ -35,8 +35,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { message: `${count} categories added, ${categories.length - count} skipped` },
-      { status: 201 }
+      { message: `${count} categories added, ${categories.length - count} skipped`,data:{name:categories[0].name} },
+      { status: 201 },
     );
   } catch (error) {
     console.error("[CATEGORY_ERROR]", error);

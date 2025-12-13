@@ -56,8 +56,8 @@ model Product {
   name        String
   barcode     String    @unique // Scanned via QR/Barcode
   description String?
-  price       Decimal // Selling Price
-  costPrice   Decimal // Cost Price (to calculate profit)
+  price       Float // Selling Price
+  costPrice   Float // Cost Price (to calculate profit)
   stock       Int
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])
@@ -75,8 +75,8 @@ model ProductPriceHistory {
   productId Int
   product   Product @relation(fields: [productId], references: [id])
 
-  price     Decimal // Selling price at that time
-  costPrice Decimal // Cost price at that time
+  price     Float // Selling price at that time
+  costPrice Float // Cost price at that time
 
   validFrom DateTime  @default(now())
   validTo   DateTime? // Null means current price
@@ -90,10 +90,10 @@ model Order {
   orderNumber String @unique @default(uuid()) // Public readable ID
 
   // Financials
-  subTotal    Decimal // Before tax/discount
-  tax         Decimal @default(0)
-  discount    Decimal @default(0)
-  totalAmount Decimal // Final amount to pay
+  subTotal    Float // Before tax/discount
+  tax         Float @default(0)
+  discount    Float @default(0)
+  totalAmount Float // Final amount to pay
 
   status OrderStatus @default(PENDING)
 
@@ -118,8 +118,8 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   quantity Int
-  price    Decimal // Price *at moment of sale* (in case product price changes later)
-  cost     Decimal // Cost *at moment of sale* (for profit calculation)
+  price    Float // Price *at moment of sale* (in case product price changes later)
+  cost     Float // Cost *at moment of sale* (for profit calculation)
 }
 
 // 4. PAYMENTS (Tracking the money)
@@ -128,7 +128,7 @@ model Payment {
   orderId Int
   order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  amount    Decimal
+  amount    Float
   method    PaymentMethod // CASH, CARD, etc.
   reference String? // External Transaction ID (e.g. from Card Terminal)
 

@@ -39,11 +39,17 @@ const page = async ({ searchParams }: PageProps) => {
     db.product.count({ where }),
   ])
 
+  const plainProducts = products.map((product) => ({
+    ...product,
+    price: product.price,
+    costPrice: product.costPrice,
+  }))
+
   return (
     <div>
       <DataTable
         columns={columns}
-        data={products}
+        data={plainProducts}
         pageCount={Math.ceil(totalCount / pageSize)}
         pageSize={pageSize}
         pageIndex={pageIndex}

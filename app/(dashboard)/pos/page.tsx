@@ -12,10 +12,11 @@ const page = async () => {
   // Convert Decimal fields to numbers (or strings)
   const plainProducts = products.map((product) => ({
     ...product,
-    price: product.price.toNumber(),
-    costPrice: product.costPrice.toNumber(),
+    price: product.price,
+    costPrice: product.costPrice,
     category: product.category?.name || "Uncategorized",
     categoryId: product.categoryId?.toString(),
+    unit: product.unit || "pcs",
   }))
 
   return (

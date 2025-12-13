@@ -29,22 +29,22 @@ export type AggregateProductPriceHistory = {
 export type ProductPriceHistoryAvgAggregateOutputType = {
   id: number | null
   productId: number | null
-  price: runtime.Decimal | null
-  costPrice: runtime.Decimal | null
+  price: number | null
+  costPrice: number | null
 }
 
 export type ProductPriceHistorySumAggregateOutputType = {
   id: number | null
   productId: number | null
-  price: runtime.Decimal | null
-  costPrice: runtime.Decimal | null
+  price: number | null
+  costPrice: number | null
 }
 
 export type ProductPriceHistoryMinAggregateOutputType = {
   id: number | null
   productId: number | null
-  price: runtime.Decimal | null
-  costPrice: runtime.Decimal | null
+  price: number | null
+  costPrice: number | null
   validFrom: Date | null
   validTo: Date | null
   createdAt: Date | null
@@ -53,8 +53,8 @@ export type ProductPriceHistoryMinAggregateOutputType = {
 export type ProductPriceHistoryMaxAggregateOutputType = {
   id: number | null
   productId: number | null
-  price: runtime.Decimal | null
-  costPrice: runtime.Decimal | null
+  price: number | null
+  costPrice: number | null
   validFrom: Date | null
   validTo: Date | null
   createdAt: Date | null
@@ -206,8 +206,8 @@ export type ProductPriceHistoryGroupByArgs<ExtArgs extends runtime.Types.Extensi
 export type ProductPriceHistoryGroupByOutputType = {
   id: number
   productId: number
-  price: runtime.Decimal
-  costPrice: runtime.Decimal
+  price: number
+  costPrice: number
   validFrom: Date
   validTo: Date | null
   createdAt: Date
@@ -239,8 +239,8 @@ export type ProductPriceHistoryWhereInput = {
   NOT?: Prisma.ProductPriceHistoryWhereInput | Prisma.ProductPriceHistoryWhereInput[]
   id?: Prisma.IntFilter<"ProductPriceHistory"> | number
   productId?: Prisma.IntFilter<"ProductPriceHistory"> | number
-  price?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFilter<"ProductPriceHistory"> | number
+  costPrice?: Prisma.FloatFilter<"ProductPriceHistory"> | number
   validFrom?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
   validTo?: Prisma.DateTimeNullableFilter<"ProductPriceHistory"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
@@ -264,8 +264,8 @@ export type ProductPriceHistoryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProductPriceHistoryWhereInput[]
   NOT?: Prisma.ProductPriceHistoryWhereInput | Prisma.ProductPriceHistoryWhereInput[]
   productId?: Prisma.IntFilter<"ProductPriceHistory"> | number
-  price?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFilter<"ProductPriceHistory"> | number
+  costPrice?: Prisma.FloatFilter<"ProductPriceHistory"> | number
   validFrom?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
   validTo?: Prisma.DateTimeNullableFilter<"ProductPriceHistory"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
@@ -293,16 +293,16 @@ export type ProductPriceHistoryScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProductPriceHistoryScalarWhereWithAggregatesInput | Prisma.ProductPriceHistoryScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ProductPriceHistory"> | number
   productId?: Prisma.IntWithAggregatesFilter<"ProductPriceHistory"> | number
-  price?: Prisma.DecimalWithAggregatesFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalWithAggregatesFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatWithAggregatesFilter<"ProductPriceHistory"> | number
+  costPrice?: Prisma.FloatWithAggregatesFilter<"ProductPriceHistory"> | number
   validFrom?: Prisma.DateTimeWithAggregatesFilter<"ProductPriceHistory"> | Date | string
   validTo?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductPriceHistory"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductPriceHistory"> | Date | string
 }
 
 export type ProductPriceHistoryCreateInput = {
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
@@ -312,16 +312,16 @@ export type ProductPriceHistoryCreateInput = {
 export type ProductPriceHistoryUncheckedCreateInput = {
   id?: number
   productId: number
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
 }
 
 export type ProductPriceHistoryUpdateInput = {
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -331,8 +331,8 @@ export type ProductPriceHistoryUpdateInput = {
 export type ProductPriceHistoryUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -341,16 +341,16 @@ export type ProductPriceHistoryUncheckedUpdateInput = {
 export type ProductPriceHistoryCreateManyInput = {
   id?: number
   productId: number
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
 }
 
 export type ProductPriceHistoryUpdateManyMutationInput = {
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -359,8 +359,8 @@ export type ProductPriceHistoryUpdateManyMutationInput = {
 export type ProductPriceHistoryUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -467,8 +467,8 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 }
 
 export type ProductPriceHistoryCreateWithoutProductInput = {
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
@@ -476,8 +476,8 @@ export type ProductPriceHistoryCreateWithoutProductInput = {
 
 export type ProductPriceHistoryUncheckedCreateWithoutProductInput = {
   id?: number
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
@@ -514,8 +514,8 @@ export type ProductPriceHistoryScalarWhereInput = {
   NOT?: Prisma.ProductPriceHistoryScalarWhereInput | Prisma.ProductPriceHistoryScalarWhereInput[]
   id?: Prisma.IntFilter<"ProductPriceHistory"> | number
   productId?: Prisma.IntFilter<"ProductPriceHistory"> | number
-  price?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFilter<"ProductPriceHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFilter<"ProductPriceHistory"> | number
+  costPrice?: Prisma.FloatFilter<"ProductPriceHistory"> | number
   validFrom?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
   validTo?: Prisma.DateTimeNullableFilter<"ProductPriceHistory"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductPriceHistory"> | Date | string
@@ -523,16 +523,16 @@ export type ProductPriceHistoryScalarWhereInput = {
 
 export type ProductPriceHistoryCreateManyProductInput = {
   id?: number
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: number
+  costPrice: number
   validFrom?: Date | string
   validTo?: Date | string | null
   createdAt?: Date | string
 }
 
 export type ProductPriceHistoryUpdateWithoutProductInput = {
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -540,8 +540,8 @@ export type ProductPriceHistoryUpdateWithoutProductInput = {
 
 export type ProductPriceHistoryUncheckedUpdateWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -549,8 +549,8 @@ export type ProductPriceHistoryUncheckedUpdateWithoutProductInput = {
 
 export type ProductPriceHistoryUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -620,8 +620,8 @@ export type $ProductPriceHistoryPayload<ExtArgs extends runtime.Types.Extensions
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     productId: number
-    price: runtime.Decimal
-    costPrice: runtime.Decimal
+    price: number
+    costPrice: number
     validFrom: Date
     validTo: Date | null
     createdAt: Date
@@ -1051,8 +1051,8 @@ export interface Prisma__ProductPriceHistoryClient<T, Null = never, ExtArgs exte
 export interface ProductPriceHistoryFieldRefs {
   readonly id: Prisma.FieldRef<"ProductPriceHistory", 'Int'>
   readonly productId: Prisma.FieldRef<"ProductPriceHistory", 'Int'>
-  readonly price: Prisma.FieldRef<"ProductPriceHistory", 'Decimal'>
-  readonly costPrice: Prisma.FieldRef<"ProductPriceHistory", 'Decimal'>
+  readonly price: Prisma.FieldRef<"ProductPriceHistory", 'Float'>
+  readonly costPrice: Prisma.FieldRef<"ProductPriceHistory", 'Float'>
   readonly validFrom: Prisma.FieldRef<"ProductPriceHistory", 'DateTime'>
   readonly validTo: Prisma.FieldRef<"ProductPriceHistory", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ProductPriceHistory", 'DateTime'>
