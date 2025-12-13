@@ -2,6 +2,8 @@ import POSPage from '@/app/components/model/PosModel'
 import { db } from '@/lib/db'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'  // <-- add this
+
 const page = async () => {
   const products = await db.product.findMany({
     include: {
@@ -9,7 +11,6 @@ const page = async () => {
     },
   })
 
-  // Convert Decimal fields to numbers (or strings)
   const plainProducts = products.map((product) => ({
     ...product,
     price: product.price,

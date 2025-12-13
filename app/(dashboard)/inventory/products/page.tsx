@@ -20,8 +20,8 @@ const page = async ({ searchParams }: PageProps) => {
   const where: Prisma.ProductWhereInput = search
     ? {
       OR: [
-        { name: { contains: search } },
-        { barcode: { contains: search } },
+        { name: { contains: search, mode: "insensitive" } },
+        { barcode: { contains: search, mode: "insensitive" } },
       ],
     }
     : {}
