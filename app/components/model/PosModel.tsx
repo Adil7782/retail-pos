@@ -10,14 +10,48 @@ import {
     CreditCard,
     Banknote,
     ScanBarcode,
+    Scale, // *** ADDED: Icon for weight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product } from "@/data"; // Assuming this import exists based on your snippet
+// import { Product } from "@/data"; <--- Commented out to use local interface for demo
+
 import DashboardLayout from "../../components/DashboardLayout";
+
+// *** CHANGED: Extended the interface to include 'unit'
+// Make sure your database/data source actually provides this field!
+interface Product {
+    id: number;
+    name: string;
+    barcode: string;
+    price: number;
+    // 'kg' | 'g' | 'l' | 'ml' | 'pcs'
+    unit: string;
+}
 
 interface CartItem extends Product {
     qty: number;
 }
+
+// *** ADDED: Configuration for Quick Buttons based on Unit Type
+const UNIT_PRESETS: Record<string, { label: string; value: number }[]> = {
+    kg: [
+        { label: "100g", value: 0.1 },
+        { label: "250g", value: 0.25 },
+        { label: "500g", value: 0.5 },
+        { label: "1kg", value: 1 },
+        { label: "2kg", value: 2 },
+        { label: "5kg", value: 5 },
+    ],
+    l: [
+        { label: "100ml", value: 0.1 }, // Assuming price is per Liter
+        { label: "250ml", value: 0.25 },
+        { label: "500ml", value: 0.5 },
+        { label: "1L", value: 1 },
+        { label: "2L", value: 2 },
+        { label: "5L", value: 5 },
+    ],
+    // You can add 'm' for meters (fabric/wires) etc.
+};
 
 export default function POSPage({ products }: { products: Product[] }) {
     // --- STATE ---
@@ -59,8 +93,10 @@ export default function POSPage({ products }: { products: Product[] }) {
     const confirmAddToCart = () => {
         if (!pendingProduct) return;
 
-        const qtyToAdd = parseInt(qtyInput) || 1;
-        if (qtyToAdd <= 0) return;
+        // *** CHANGED: Use parseFloat instead of parseInt to allow 0.5, 1.25, etc.
+        const qtyToAdd = parseFloat(qtyInput);
+
+        if (isNaN(qtyToAdd) || qtyToAdd <= 0) return;
 
         setCart((prev) => {
             const existing = prev.find((item) => item.id === pendingProduct.id);
@@ -84,7 +120,6 @@ export default function POSPage({ products }: { products: Product[] }) {
         setPendingProduct(null);
         setQuery(""); // Clear search
         setFocusedIndex(-1);
-        // Refocus main input shortly after
         setTimeout(() => searchInputRef.current?.focus(), 50);
     };
 
@@ -93,7 +128,9 @@ export default function POSPage({ products }: { products: Product[] }) {
         setCart((prev) =>
             prev.map((item) => {
                 if (item.id === id) {
-                    return { ...item, qty: Math.max(1, item.qty + delta) };
+                    // *** CHANGED: Fix floating point math issues (e.g. 0.1 + 0.2 = 0.300000004)
+                    const newQty = parseFloat((item.qty + delta).toFixed(3));
+                    return { ...item, qty: Math.max(0.001, newQty) }; // allow going low but not 0
                 }
                 return item;
             })
@@ -106,8 +143,6 @@ export default function POSPage({ products }: { products: Product[] }) {
     };
 
     // --- KEYBOARD HANDLERS ---
-
-    // Main Search Input Handlers
     const handleSearchKeyDown = (e: React.KeyboardEvent) => {
         if (filteredProducts.length === 0) return;
 
@@ -121,19 +156,12 @@ export default function POSPage({ products }: { products: Product[] }) {
             setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         } else if (e.key === "Enter") {
             e.preventDefault();
-
-            // Priority 1: Exact Barcode Match (Scanner behavior)
             const exactMatch = products.find((p) => p.barcode === query);
-
             if (exactMatch) {
                 initiateAddToCart(exactMatch);
-            }
-            // Priority 2: Currently focused dropdown item
-            else if (focusedIndex >= 0 && filteredProducts[focusedIndex]) {
+            } else if (focusedIndex >= 0 && filteredProducts[focusedIndex]) {
                 initiateAddToCart(filteredProducts[focusedIndex]);
-            }
-            // Priority 3: If only one result exists, select it automatically
-            else if (filteredProducts.length === 1) {
+            } else if (filteredProducts.length === 1) {
                 initiateAddToCart(filteredProducts[0]);
             }
         } else if (e.key === "Escape") {
@@ -142,7 +170,6 @@ export default function POSPage({ products }: { products: Product[] }) {
         }
     };
 
-    // Quantity Modal Input Handlers
     const handleQtyKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
             confirmAddToCart();
@@ -152,42 +179,34 @@ export default function POSPage({ products }: { products: Product[] }) {
     };
 
     // --- EFFECTS ---
-
-    // Auto-focus main input on load
     useEffect(() => {
         searchInputRef.current?.focus();
     }, []);
 
-    // Auto-focus quantity input when modal opens
     useEffect(() => {
         if (isQtyModalOpen) {
-            setTimeout(() => qtyInputRef.current?.focus(), 50);
+            // Select all text when opening so user can type immediately to replace
+            setTimeout(() => qtyInputRef.current?.select(), 50);
         }
     }, [isQtyModalOpen]);
 
-    // Open dropdown when typing
     useEffect(() => {
         if (query.length > 0) {
             setIsDropdownOpen(true);
-            setFocusedIndex(0); // Auto-highlight first item
+            setFocusedIndex(0);
         } else {
             setIsDropdownOpen(false);
             setFocusedIndex(-1);
         }
     }, [query]);
 
-    // Calculations
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-
-    const total = subtotal
+    const total = subtotal;
 
     return (
-
         <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 p-4 bg-slate-50 overflow-hidden">
-
             {/* --- LEFT SECTION: SEARCH & KEYBOARD INTERFACE --- */}
             <div className="flex-1 flex flex-col gap-4 relative">
-
                 {/* Search Bar Container */}
                 <div className="relative z-20">
                     <div className="relative">
@@ -200,7 +219,6 @@ export default function POSPage({ products }: { products: Product[] }) {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={handleSearchKeyDown}
-                            // Keep focus here unless modal is open
                             disabled={isQtyModalOpen}
                             autoComplete="off"
                         />
@@ -226,7 +244,13 @@ export default function POSPage({ products }: { products: Product[] }) {
                                 >
                                     <div>
                                         <div className="font-medium text-slate-800">{product.name}</div>
-                                        <div className="text-xs text-slate-400">#{product.barcode}</div>
+                                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                                            <span>#{product.barcode}</span>
+                                            {/* Show Unit Badge */}
+                                            <span className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-500 font-medium uppercase">
+                                                {product.unit}
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className="font-semibold text-blue-600">
                                         Rs.{product.price.toFixed(2)}
@@ -251,7 +275,6 @@ export default function POSPage({ products }: { products: Product[] }) {
 
             {/* --- RIGHT SECTION: CART --- */}
             <div className="w-full md:w-[400px] bg-white rounded-2xl shadow-lg border border-slate-100 flex flex-col h-full z-10">
-
                 {/* Header */}
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
                     <h2 className="font-bold text-lg text-slate-800">Current Order</h2>
@@ -288,14 +311,18 @@ export default function POSPage({ products }: { products: Product[] }) {
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1">
                                         <button
-                                            onClick={() => updateCartQty(item.id, -1)}
+                                            // *** CHANGED: Allow small decrements for weight items, 1 for others
+                                            onClick={() => updateCartQty(item.id, item.unit === 'pcs' ? -1 : -0.1)}
                                             className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm hover:bg-slate-200 transition"
                                         >
                                             <Minus size={12} />
                                         </button>
-                                        <span className="text-sm font-semibold w-6 text-center">{item.qty}</span>
+                                        <span className="text-sm font-semibold min-w-[30px] text-center">
+                                            {item.qty}
+                                            <span className="text-[10px] text-slate-400 ml-0.5">{item.unit}</span>
+                                        </span>
                                         <button
-                                            onClick={() => updateCartQty(item.id, 1)}
+                                            onClick={() => updateCartQty(item.id, item.unit === 'pcs' ? 1 : 0.1)}
                                             className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm hover:bg-slate-200 transition"
                                         >
                                             <Plus size={12} />
@@ -306,7 +333,7 @@ export default function POSPage({ products }: { products: Product[] }) {
                                             Rs.{(item.price * item.qty).toFixed(2)}
                                         </div>
                                         <div className="text-[10px] text-slate-400">
-                                            Rs.{item.price}/unit
+                                            Rs.{item.price}/{item.unit}
                                         </div>
                                     </div>
                                 </div>
@@ -322,7 +349,6 @@ export default function POSPage({ products }: { products: Product[] }) {
                             <span>Subtotal</span>
                             <span>Rs.{subtotal.toFixed(2)}</span>
                         </div>
-
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200">
                         <span className="font-bold text-lg">Total</span>
@@ -359,16 +385,47 @@ export default function POSPage({ products }: { products: Product[] }) {
                             </button>
                         </div>
 
-                        <div className="space-y-4">
-                            <input
-                                ref={qtyInputRef}
-                                type="number"
-                                min="1"
-                                value={qtyInput}
-                                onChange={(e) => setQtyInput(e.target.value)}
-                                onKeyDown={handleQtyKeyDown}
-                                className="w-full text-center text-4xl font-bold py-4 border-b-2 border-blue-500 outline-none bg-transparent"
-                            />
+                        <div className="space-y-6">
+                            {/* Input Field */}
+                            <div className="relative">
+                                <input
+                                    ref={qtyInputRef}
+                                    type="number"
+                                    step="0.001" // *** IMPORTANT: Allows 3 decimal places
+                                    min="0.001"
+                                    value={qtyInput}
+                                    onChange={(e) => setQtyInput(e.target.value)}
+                                    onKeyDown={handleQtyKeyDown}
+                                    className="w-full text-center text-4xl font-bold py-4 border-b-2 border-blue-500 outline-none bg-transparent"
+                                />
+                                <span className="absolute right-0 bottom-4 text-slate-400 font-medium text-lg uppercase">
+                                    {pendingProduct.unit}
+                                </span>
+                            </div>
+
+                            {/* *** CHANGED: Quick Select Buttons for Kg/L *** */}
+                            {UNIT_PRESETS[pendingProduct.unit] && (
+                                <div className="grid grid-cols-3 gap-2">
+                                    {UNIT_PRESETS[pendingProduct.unit].map((preset) => (
+                                        <button
+                                            key={preset.label}
+                                            onClick={() => {
+                                                setQtyInput(preset.value.toString());
+                                                // Optional: Focus back on input or just keep focus on buttons
+                                                qtyInputRef.current?.focus();
+                                            }}
+                                            className={cn(
+                                                "py-2 rounded-lg text-sm font-semibold border transition",
+                                                parseFloat(qtyInput) === preset.value
+                                                    ? "bg-blue-600 text-white border-blue-600"
+                                                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                            )}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="flex gap-2">
                                 <button
@@ -389,6 +446,5 @@ export default function POSPage({ products }: { products: Product[] }) {
                 </div>
             )}
         </div>
-
     );
 }

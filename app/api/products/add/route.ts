@@ -15,6 +15,9 @@ export async function POST(
         console.log(name, barcode, description, price, costPrice, stock, categoryId,unit)
         let id = generateUniqueId();
         
+        if (!barcode || !name) {
+  return new NextResponse("Barcode and name are required", { status: 400 });
+}
         const existingBarcode = await db.product.findUnique({
             where: {
                 barcode
@@ -45,7 +48,7 @@ export async function POST(
             }
         });
 
-        return NextResponse.json({ product: "", message: 'Product created successfully' }, { status: 201 });
+        return NextResponse.json({ product: newProduct, message: 'Product created successfully' }, { status: 201 });
 
     } catch (error) {
         console.error("[PRODUCT_ERROR]", error);
