@@ -1,47 +1,95 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-
-
-import { Search, Trash2, Plus, Minus, ScanBarcode, CreditCard, Banknote } from "lucide-react";
+import {
+    Search,
+    Trash2,
+    Plus,
+    Minus,
+    X,
+    CreditCard,
+    Banknote,
+    ScanBarcode,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product, products } from "@/data";
+import { Product } from "@/data"; // Assuming this import exists based on your snippet
 import DashboardLayout from "../../components/DashboardLayout";
 
-// Interface for items specifically in the cart
 interface CartItem extends Product {
     qty: number;
 }
 
 export default function POSPage({ products }: { products: Product[] }) {
+    // --- STATE ---
     const [query, setQuery] = useState("");
     const [cart, setCart] = useState<CartItem[]>([]);
-    const searchInputRef = useRef<HTMLInputElement>(null);
 
-    // 1. Filter products for the visual grid
+    // Navigation & Selection
+    const [focusedIndex, setFocusedIndex] = useState(-1);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    // Modal / Quantity Logic
+    const [isQtyModalOpen, setIsQtyModalOpen] = useState(false);
+    const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+    const [qtyInput, setQtyInput] = useState("1");
+
+    // Refs
+    const searchInputRef = useRef<HTMLInputElement>(null);
+    const qtyInputRef = useRef<HTMLInputElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // --- FILTER LOGIC ---
     const filteredProducts = products.filter(
         (p) =>
             p.name.toLowerCase().includes(query.toLowerCase()) ||
             p.barcode.includes(query)
     );
 
-    // 2. Add to Cart Logic
-    const addToCart = (product: Product) => {
-        setCart((prev) => {
-            const existing = prev.find((item) => item.id === product.id);
-            if (existing) {
-                // If exists, increment qty
-                return prev.map((item) =>
-                    item.id === product.id ? { ...item, qty: item.qty + 1 } : item
-                );
-            }
-            // If new, add with qty 1
-            return [...prev, { ...product, qty: 1 }];
-        });
+    // --- ACTIONS ---
+
+    // 1. Initiate Add (Open Modal)
+    const initiateAddToCart = (product: Product) => {
+        setPendingProduct(product);
+        setQtyInput("1");
+        setIsQtyModalOpen(true);
+        setIsDropdownOpen(false);
     };
 
-    // 3. Handle Quantity Updates
-    const updateQty = (id: number, delta: number) => {
+    // 2. Confirm Add (Update Cart)
+    const confirmAddToCart = () => {
+        if (!pendingProduct) return;
+
+        const qtyToAdd = parseInt(qtyInput) || 1;
+        if (qtyToAdd <= 0) return;
+
+        setCart((prev) => {
+            const existing = prev.find((item) => item.id === pendingProduct.id);
+            if (existing) {
+                // Update existing item
+                return prev.map((item) =>
+                    item.id === pendingProduct.id
+                        ? { ...item, qty: item.qty + qtyToAdd }
+                        : item
+                );
+            }
+            // Add new item
+            return [...prev, { ...pendingProduct, qty: qtyToAdd }];
+        });
+
+        closeQtyModal();
+    };
+
+    const closeQtyModal = () => {
+        setIsQtyModalOpen(false);
+        setPendingProduct(null);
+        setQuery(""); // Clear search
+        setFocusedIndex(-1);
+        // Refocus main input shortly after
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+    };
+
+    // 3. Update Existing Cart Qty
+    const updateCartQty = (id: number, delta: number) => {
         setCart((prev) =>
             prev.map((item) => {
                 if (item.id === id) {
@@ -57,184 +105,289 @@ export default function POSPage({ products }: { products: Product[] }) {
         setCart((prev) => prev.filter((item) => item.id !== id));
     };
 
-    // 5. Handle Barcode Scanner "Enter" Key
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            // Find exact match by barcode
+    // --- KEYBOARD HANDLERS ---
+
+    // Main Search Input Handlers
+    const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+        if (filteredProducts.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setFocusedIndex((prev) =>
+                prev < filteredProducts.length - 1 ? prev + 1 : prev
+            );
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+
+            // Priority 1: Exact Barcode Match (Scanner behavior)
             const exactMatch = products.find((p) => p.barcode === query);
+
             if (exactMatch) {
-                addToCart(exactMatch);
-                setQuery(""); // Clear for next scan
+                initiateAddToCart(exactMatch);
             }
+            // Priority 2: Currently focused dropdown item
+            else if (focusedIndex >= 0 && filteredProducts[focusedIndex]) {
+                initiateAddToCart(filteredProducts[focusedIndex]);
+            }
+            // Priority 3: If only one result exists, select it automatically
+            else if (filteredProducts.length === 1) {
+                initiateAddToCart(filteredProducts[0]);
+            }
+        } else if (e.key === "Escape") {
+            setIsDropdownOpen(false);
+            setFocusedIndex(-1);
         }
     };
 
-    // 6. Calculations
-    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-    const taxRate = 0.1; // 10% tax
-    const tax = subtotal * taxRate;
-    const total = subtotal + tax;
+    // Quantity Modal Input Handlers
+    const handleQtyKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            confirmAddToCart();
+        } else if (e.key === "Escape") {
+            closeQtyModal();
+        }
+    };
 
-    // Auto-focus search on load
+    // --- EFFECTS ---
+
+    // Auto-focus main input on load
     useEffect(() => {
         searchInputRef.current?.focus();
     }, []);
 
+    // Auto-focus quantity input when modal opens
+    useEffect(() => {
+        if (isQtyModalOpen) {
+            setTimeout(() => qtyInputRef.current?.focus(), 50);
+        }
+    }, [isQtyModalOpen]);
+
+    // Open dropdown when typing
+    useEffect(() => {
+        if (query.length > 0) {
+            setIsDropdownOpen(true);
+            setFocusedIndex(0); // Auto-highlight first item
+        } else {
+            setIsDropdownOpen(false);
+            setFocusedIndex(-1);
+        }
+    }, [query]);
+
+    // Calculations
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+    const total = subtotal
+
     return (
 
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-6">
+        <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 p-4 bg-slate-50 overflow-hidden">
 
-            {/* LEFT SECTION: PRODUCT GRID */}
-            <div className="flex-1 flex flex-col gap-4 min-h-0">
+            {/* --- LEFT SECTION: SEARCH & KEYBOARD INTERFACE --- */}
+            <div className="flex-1 flex flex-col gap-4 relative">
 
-                {/* Search Bar */}
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
-                    <Search className="text-slate-400" />
-                    <input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder="Scan barcode or type product name..."
-                        className="flex-1 outline-none text-lg bg-transparent"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        autoFocus
-                    />
-                    <ScanBarcode className="text-slate-400" />
+                {/* Search Bar Container */}
+                <div className="relative z-20">
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Scan barcode or type name..."
+                            className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition text-lg shadow-sm"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
+                            // Keep focus here unless modal is open
+                            disabled={isQtyModalOpen}
+                            autoComplete="off"
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                            <ScanBarcode className="text-slate-400" />
+                        </div>
+                    </div>
+
+                    {/* Dropdown Suggestions */}
+                    {isDropdownOpen && filteredProducts.length > 0 && (
+                        <div
+                            ref={dropdownRef}
+                            className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 max-h-[60vh] overflow-y-auto z-30"
+                        >
+                            {filteredProducts.map((product, index) => (
+                                <div
+                                    key={product.id}
+                                    onClick={() => initiateAddToCart(product)}
+                                    className={cn(
+                                        "flex justify-between items-center p-4 cursor-pointer border-b border-slate-50 last:border-0",
+                                        index === focusedIndex ? "bg-blue-50" : "hover:bg-slate-50"
+                                    )}
+                                >
+                                    <div>
+                                        <div className="font-medium text-slate-800">{product.name}</div>
+                                        <div className="text-xs text-slate-400">#{product.barcode}</div>
+                                    </div>
+                                    <div className="font-semibold text-blue-600">
+                                        Rs.{product.price.toFixed(2)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Product Grid (Scrollable) */}
-                <div className="flex-1 overflow-y-auto bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {filteredProducts.map((product) => (
-                            <div
-                                key={product.id}
-                                onClick={() => addToCart(product)}
-                                className="group relative flex flex-col justify-between p-4 border border-slate-100 rounded-xl hover:border-blue-500 hover:shadow-md cursor-pointer transition bg-slate-50 hover:bg-white"
-                            >
-                                <div className="space-y-2">
-                                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm mb-2", product.color)}>
-                                        {product.name.substring(0, 2).toUpperCase()}
-                                    </div>
-                                    <h3 className="font-semibold text-slate-700 leading-tight">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-xs text-slate-400">#{product.barcode}</p>
-                                </div>
-                                <div className="mt-3 flex items-center justify-between">
-                                    <span className="font-bold text-blue-600">${product.price.toFixed(2)}</span>
-                                    <span className="text-xs bg-white border border-slate-200 px-2 py-1 rounded text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition">
-                                        Add
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                        {filteredProducts.length === 0 && (
-                            <div className="col-span-full flex flex-col items-center justify-center text-slate-400 h-64">
-                                <Search size={48} className="mb-4 opacity-20" />
-                                <p>No products found</p>
-                            </div>
-                        )}
+                {/* Helper Text */}
+                <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+                    <div className="text-center space-y-2">
+                        <p>Scan a product or type to search.</p>
+                        <div className="flex gap-2 justify-center text-xs">
+                            <span className="px-2 py-1 bg-white border rounded">↑/↓ Navigate</span>
+                            <span className="px-2 py-1 bg-white border rounded">↵ Select</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* RIGHT SECTION: BILLING / CART */}
-            <div className="w-full lg:w-[400px] bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+            {/* --- RIGHT SECTION: CART --- */}
+            <div className="w-full md:w-[400px] bg-white rounded-2xl shadow-lg border border-slate-100 flex flex-col h-full z-10">
 
                 {/* Header */}
-                <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
                     <h2 className="font-bold text-lg text-slate-800">Current Order</h2>
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
-                        {cart.reduce((acc, i) => acc + i.qty, 0)} Items
-                    </span>
+                    <p className="text-sm text-slate-500">
+                        {cart.length} distinct items
+                    </p>
                 </div>
 
-                {/* Cart Items (Scrollable) */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {/* Cart Items List */}
+                <div className="flex-1 overflow-y-auto p-2 space-y-2">
                     {cart.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
-                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
-                                <ScanBarcode size={32} className="opacity-50" />
-                            </div>
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
+                            <ScanBarcode size={48} className="opacity-20" />
                             <p>Order is empty</p>
                         </div>
                     ) : (
                         cart.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg bg-slate-50/50">
-                                <div className="flex-1">
-                                    <h4 className="font-medium text-slate-700 text-sm">{item.name}</h4>
-                                    <p className="text-xs text-slate-500">${item.price} / unit</p>
-                                </div>
-
-                                {/* Quantity Controls */}
-                                <div className="flex items-center gap-3 mx-4">
-                                    <button
-                                        onClick={() => updateQty(item.id, -1)}
-                                        className="p-1 hover:bg-slate-200 rounded text-slate-600 transition"
-                                    >
-                                        <Minus size={14} />
-                                    </button>
-                                    <span className="text-sm font-semibold w-4 text-center">{item.qty}</span>
-                                    <button
-                                        onClick={() => updateQty(item.id, 1)}
-                                        className="p-1 hover:bg-slate-200 rounded text-slate-600 transition"
-                                    >
-                                        <Plus size={14} />
-                                    </button>
-                                </div>
-
-                                {/* Total & Remove */}
-                                <div className="text-right">
-                                    <p className="font-bold text-slate-800 text-sm">
-                                        ${(item.price * item.qty).toFixed(2)}
-                                    </p>
+                            <div
+                                key={item.id}
+                                className="flex flex-col p-3 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition group"
+                            >
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="font-medium text-slate-700 w-3/4 truncate">
+                                        {item.name}
+                                    </span>
                                     <button
                                         onClick={() => removeFromCart(item.id)}
-                                        className="text-red-400 hover:text-red-600 text-xs mt-1 transition"
+                                        className="text-slate-300 hover:text-red-500 transition"
                                     >
-                                        <Trash2 size={14} />
+                                        <Trash2 size={16} />
                                     </button>
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1">
+                                        <button
+                                            onClick={() => updateCartQty(item.id, -1)}
+                                            className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm hover:bg-slate-200 transition"
+                                        >
+                                            <Minus size={12} />
+                                        </button>
+                                        <span className="text-sm font-semibold w-6 text-center">{item.qty}</span>
+                                        <button
+                                            onClick={() => updateCartQty(item.id, 1)}
+                                            className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm hover:bg-slate-200 transition"
+                                        >
+                                            <Plus size={12} />
+                                        </button>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-bold text-slate-800">
+                                            Rs.{(item.price * item.qty).toFixed(2)}
+                                        </div>
+                                        <div className="text-[10px] text-slate-400">
+                                            Rs.{item.price}/unit
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))
                     )}
                 </div>
 
-                {/* Footer: Totals & Actions */}
-                <div className="p-6 bg-slate-50 border-t border-slate-200 rounded-b-xl space-y-4">
-                    <div className="space-y-2 text-sm text-slate-600">
+                {/* Footer Totals */}
+                <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl space-y-3">
+                    <div className="space-y-1 text-sm text-slate-600">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-                            <span>${subtotal.toFixed(2)}</span>
+                            <span>Rs.{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span>Tax (10%)</span>
-                            <span>${tax.toFixed(2)}</span>
-                        </div>
+
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+                        <span className="font-bold text-lg">Total</span>
+                        <span className="font-bold text-2xl text-blue-600">
+                            Rs.{total.toFixed(2)}
+                        </span>
                     </div>
 
-                    <div className="flex justify-between items-end border-t border-slate-200 pt-4">
-                        <span className="text-slate-500 font-medium">Total Payable</span>
-                        <span className="text-3xl font-bold text-slate-900">${total.toFixed(2)}</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="grid grid-cols-2 gap-2 pt-2">
                         <button
-                            className="flex items-center justify-center gap-2 py-3 rounded-lg border border-blue-600 text-blue-600 font-semibold hover:bg-blue-50 transition"
-                            onClick={() => setCart([])} // Reset
+                            onClick={() => setCart([])}
+                            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
                         >
-                            <Banknote size={18} />
-                            Cash
+                            <Trash2 size={18} /> Cancel
                         </button>
-                        <button className="flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
-                            <CreditCard size={18} />
-                            Charge
+                        <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
+                            <CreditCard size={18} /> Charge
                         </button>
                     </div>
                 </div>
-
             </div>
+
+            {/* --- QUANTITY POPUP DIALOG --- */}
+            {isQtyModalOpen && pendingProduct && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Enter Quantity</h3>
+                                <p className="text-sm text-slate-500">{pendingProduct.name}</p>
+                            </div>
+                            <button onClick={closeQtyModal} className="text-slate-400 hover:text-slate-600">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <input
+                                ref={qtyInputRef}
+                                type="number"
+                                min="1"
+                                value={qtyInput}
+                                onChange={(e) => setQtyInput(e.target.value)}
+                                onKeyDown={handleQtyKeyDown}
+                                className="w-full text-center text-4xl font-bold py-4 border-b-2 border-blue-500 outline-none bg-transparent"
+                            />
+
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={closeQtyModal}
+                                    className="flex-1 py-3 rounded-xl border border-slate-200 font-medium hover:bg-slate-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmAddToCart}
+                                    className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700"
+                                >
+                                    Confirm (↵)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
 
     );
