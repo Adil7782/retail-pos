@@ -142,6 +142,51 @@ export default function POSPage({ products }: { products: Product[] }) {
         setCart((prev) => prev.filter((item) => item.id !== id));
     };
 
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 5. Handle Charge / Checkout
+    const handleCharge = async () => {
+        if (cart.length === 0) return;
+
+        setIsLoading(true);
+        try {
+            const payload = {
+                items: cart.map(item => ({
+                    id: item.id,
+                    qty: item.qty,
+                    price: item.price
+                })),
+                subTotal: subtotal,
+                tax: 0,
+                discount: 0,
+                totalAmount: total,
+                paymentMethod: "CASH"
+            };
+
+            const res = await fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Transaction failed");
+            }
+
+            // Success
+            const data = await res.json();
+            alert("Transaction Successful! Order ID: " + data.id);
+            setCart([]);
+
+        } catch (error: any) {
+            console.error("Checkout Error:", error);
+            alert("Checkout Failed: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // --- KEYBOARD HANDLERS ---
     const handleSearchKeyDown = (e: React.KeyboardEvent) => {
         if (filteredProducts.length === 0) return;
@@ -360,12 +405,23 @@ export default function POSPage({ products }: { products: Product[] }) {
                     <div className="grid grid-cols-2 gap-2 pt-2">
                         <button
                             onClick={() => setCart([])}
-                            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
+                            disabled={isLoading}
+                            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition disabled:opacity-50"
                         >
                             <Trash2 size={18} /> Cancel
                         </button>
-                        <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
-                            <CreditCard size={18} /> Charge
+                        <button
+                            onClick={handleCharge}
+                            disabled={isLoading || cart.length === 0}
+                            className="flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isLoading ? (
+                                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                            ) : (
+                                <>
+                                    <CreditCard size={18} /> Charge
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

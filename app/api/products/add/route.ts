@@ -44,7 +44,13 @@ export async function POST(
                costPrice,
                stock,
                categoryId,
-               unit
+               unit,
+               productPrices: {
+                 create: {
+                   price,
+                   costPrice
+                 }
+               }
             }
         });
 

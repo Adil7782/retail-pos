@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
 // prisma/schema.prisma
@@ -96,7 +95,7 @@ model Order {
   discount    Float @default(0)
   totalAmount Float // Final amount to pay
 
-  status OrderStatus @default(PENDING)
+  status OrderStatus @default(COMPLETED)
 
   // Relations
   userId String // The cashier who made the sale
