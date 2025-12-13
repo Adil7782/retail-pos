@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// prisma/schema.prisma
+
+// Enums help ensure data consistency
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  QR_CODE
+  OTHER
+}
+
+// 1. USERS & AUTHENTICATION
+model User {
+  id        String   @id @default(uuid()) // Use UUID for security
+  name      String
+  username  String   @unique // For login
+  password  String // Hashed password
+  role      Role     @default(CASHIER)
+  isActive  Boolean  @default(true) // Don't delete users, just deactivate
+  createdAt DateTime @default(now())
+
+  orders Order[] // Orders processed by this user
+}
+
+// 2. INVENTORY MANAGEMENT
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  barcode     String    @unique // Scanned via QR/Barcode
+  description String?
+  price       Decimal // Selling Price
+  costPrice   Decimal // Cost Price (to calculate profit)
+  stock       Int
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  unit        String?
+  isActive    Boolean   @default(true) // Soft delete
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  orderItems    OrderItem[]
+  productPrices ProductPriceHistory[]
+}
+
+model ProductPriceHistory {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  price     Decimal // Selling price at that time
+  costPrice Decimal // Cost price at that time
+
+  validFrom DateTime  @default(now())
+  validTo   DateTime? // Null means current price
+
+  createdAt DateTime @default(now())
+}
+
+// 3. SALES & TRANSACTIONS
+model Order {
+  id          Int    @id @default(autoincrement())
+  orderNumber String @unique @default(uuid()) // Public readable ID
+
+  // Financials
+  subTotal    Decimal // Before tax/discount
+  tax         Decimal @default(0)
+  discount    Decimal @default(0)
+  totalAmount Decimal // Final amount to pay
+
+  status OrderStatus @default(PENDING)
+
+  // Relations
+  userId String // The cashier who made the sale
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items    OrderItem[]
+  payments Payment[] // One order can have multiple payments (Split bill)
+}
+
+// Snapshot of the product at the time of sale
+model OrderItem {
+  id      Int   @id @default(autoincrement())
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int
+  price    Decimal // Price *at moment of sale* (in case product price changes later)
+  cost     Decimal // Cost *at moment of sale* (for profit calculation)
+}
+
+// 4. PAYMENTS (Tracking the money)
+model Payment {
+  id      Int   @id @default(autoincrement())
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  amount    Decimal
+  method    PaymentMethod // CASH, CARD, etc.
+  reference String? // External Transaction ID (e.g. from Card Terminal)
+
+  createdAt DateTime @default(now())
+}
