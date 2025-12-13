@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 
 export async function PUT(
     req: Request,
-    { params }: { params: { productId: string } }
+    { params }: { params: Promise<{ productId: string }> }
 ) {
     try {
         const body = await req.json();

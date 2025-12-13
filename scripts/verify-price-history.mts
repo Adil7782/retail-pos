@@ -75,7 +75,7 @@ async function verify() {
     });
 
     // Mock params
-    const params = { params: { productId: product.id.toString() } };
+    const params = { params: Promise.resolve({ productId: product.id.toString() }) };
 
     console.log("Updating product...");
     const updateRes = await PUT(updateReq, params);
