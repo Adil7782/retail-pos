@@ -9,7 +9,13 @@ import { db } from "@/lib/db";
 
 export default async function Home() {
 
-  const sales = await db.order.findMany();
+  const sales = await db.order.findMany(
+    {
+      orderBy: {
+        createdAt: "desc"
+      }
+    }
+  );
   const products = await db.product.count()
   const totalSales = sales.reduce((acc, sale) => acc + sale.totalAmount, 0);
   const totalOrders = sales.length;
