@@ -6,6 +6,8 @@ import POSCartItem from "./POSCartItem";
 
 interface POSCartSectionProps {
     cart: CartItem[];
+    activeItemId: number | null;
+    onSelect: (id: number) => void;
     onUpdateQty: (id: number, delta: number) => void;
     onRemove: (id: number) => void;
     onClearCart: () => void;
@@ -15,6 +17,8 @@ interface POSCartSectionProps {
 
 export default function POSCartSection({
     cart,
+    activeItemId,
+    onSelect,
     onUpdateQty,
     onRemove,
     onClearCart,
@@ -46,6 +50,8 @@ export default function POSCartSection({
                         <POSCartItem
                             key={item.id}
                             item={item}
+                            isActive={activeItemId === item.id}
+                            onClick={() => onSelect(item.id)}
                             onUpdateQty={onUpdateQty}
                             onRemove={onRemove}
                         />

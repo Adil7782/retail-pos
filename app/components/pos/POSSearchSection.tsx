@@ -3,8 +3,9 @@
 import { Search, ScanBarcode } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Product } from "./types";
+import { Product, OTHER_PRODUCT_ID } from "./types";
 import { parseBarcode } from "@/lib/barcode";
+import { Calculator } from "lucide-react";
 
 interface POSSearchSectionProps {
     products: Product[];
@@ -32,7 +33,11 @@ export default function POSSearchSection({
 
     useEffect(() => {
         if (!isLocked) {
-            searchInputRef.current?.focus();
+            // Small timeout to ensure no other element steals focus on close
+            const timer = setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 50);
+            return () => clearTimeout(timer);
         }
     }, [isLocked]);
 
@@ -179,6 +184,29 @@ export default function POSSearchSection({
 
             {/* All Products as Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 p-2 overflow-y-auto max-h-[60vh]">
+                {/* Manual "Other" Item Button */}
+                <button
+                    onClick={() => handleSelect({
+                        id: OTHER_PRODUCT_ID,
+                        name: "Other (Manual)",
+                        price: 0,
+                        unit: "pcs",
+                        isWeighed: false
+                    })}
+                    disabled={isLocked}
+                    className="flex flex-col items-center justify-center p-3 bg-indigo-50 rounded-lg shadow-sm border border-indigo-200 hover:border-indigo-400 hover:shadow-md transition-all duration-200 text-center disabled:opacity-60 disabled:cursor-not-allowed group"
+                >
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mb-1 group-hover:bg-indigo-200 text-indigo-600 transition">
+                        <Calculator size={16} />
+                    </div>
+                    <span className="font-bold text-sm text-indigo-800 line-clamp-2">
+                        Other / Manual
+                    </span>
+                    <span className="text-xs text-indigo-600/70 mt-1 font-medium">
+                        Enter Price
+                    </span>
+                </button>
+
                 {products.map((product) => (
                     <button
                         key={product.id}

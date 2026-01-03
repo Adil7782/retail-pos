@@ -8,26 +8,40 @@ import { Product, UNIT_PRESETS } from "./types";
 interface POSQuantityModalProps {
     isOpen: boolean;
     product: Product | null;
+    initialQty?: number;
+    allowPriceEdit?: boolean;
     onClose: () => void;
-    onConfirm: (product: Product, qty: number) => void;
+    onConfirm: (product: Product, qty: number, price: number) => void;
 }
 
 export default function POSQuantityModal({
     isOpen,
     product,
+    initialQty = 1,
+    allowPriceEdit = false,
     onClose,
     onConfirm,
 }: POSQuantityModalProps) {
     const [qtyInput, setQtyInput] = useState("1");
+    const [priceInput, setPriceInput] = useState("0");
     const qtyInputRef = useRef<HTMLInputElement>(null);
+    const priceInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (isOpen) {
-            setQtyInput("1");
-            // Select all text when opening so user can type immediately to replace
-            setTimeout(() => qtyInputRef.current?.select(), 50);
+        if (isOpen && product) {
+            setQtyInput(initialQty.toString());
+            setPriceInput(product.price.toString());
+
+            // Focus appropriate field
+            setTimeout(() => {
+                if (allowPriceEdit) {
+                    priceInputRef.current?.select();
+                } else {
+                    qtyInputRef.current?.select();
+                }
+            }, 50);
         }
-    }, [isOpen, product]);
+    }, [isOpen, product, initialQty, allowPriceEdit]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
@@ -41,10 +55,12 @@ export default function POSQuantityModal({
         if (!product) return;
 
         const qtyToAdd = parseFloat(qtyInput);
+        const price = parseFloat(priceInput);
 
         if (isNaN(qtyToAdd) || qtyToAdd <= 0) return;
+        if (isNaN(price) || price < 0) return;
 
-        onConfirm(product, qtyToAdd);
+        onConfirm(product, qtyToAdd, price);
     };
 
     if (!isOpen || !product) return null;
@@ -63,8 +79,39 @@ export default function POSQuantityModal({
                 </div>
 
                 <div className="space-y-6">
-                    {/* Input Field */}
+                    {/* Price Input (if enabled) */}
+                    {allowPriceEdit && (
+                        <div className="relative">
+                            <label className="block text-xs text-slate-500 mb-1 uppercase tracking-wider font-bold">
+                                Unit Price
+                            </label>
+                            <input
+                                ref={priceInputRef}
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={priceInput}
+                                onChange={(e) => setPriceInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        qtyInputRef.current?.select();
+                                    } else if (e.key === "Escape") {
+                                        onClose();
+                                    }
+                                }}
+                                className="w-full text-center text-3xl font-bold py-3 border-b-2 border-green-500 outline-none bg-transparent text-green-700"
+                            />
+                            <span className="absolute left-0 bottom-4 text-green-600/50 font-medium text-lg">
+                                Rs.
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Qty Input Field */}
                     <div className="relative">
+                        <label className="block text-xs text-slate-500 mb-1 uppercase tracking-wider font-bold">
+                            Quantity
+                        </label>
                         <input
                             ref={qtyInputRef}
                             type="number"
