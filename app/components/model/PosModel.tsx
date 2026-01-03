@@ -21,8 +21,12 @@ export default function POSPage({ products }: { products: Product[] }) {
 
     // --- ACTIONS ---
 
-    // 1. Initiate Add (Open Modal)
-    const initiateAddToCart = (product: Product) => {
+    // 1. Initiate Add (Open Modal) or Direct Add
+    const initiateAddToCart = (product: Product, quantity?: number) => {
+        if (quantity !== undefined && quantity > 0) {
+            handleConfirmAdd(product, quantity);
+            return;
+        }
         setPendingProduct(product);
         setIsQtyModalOpen(true);
     };

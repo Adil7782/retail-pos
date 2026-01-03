@@ -54,11 +54,13 @@ model Category {
 model Product {
   id          Int       @id @default(autoincrement())
   name        String
-  barcode     String    @unique // Scanned via QR/Barcode
+  barcode     String?   @unique // Scanned via QR/Barcode (Optional for weighted items)
+  scalePlu    String?   @unique // 5-digit code for scale items
+  isWeighed   Boolean   @default(false)
   description String?
   price       Float // Selling Price
   costPrice   Float // Cost Price (to calculate profit)
-  stock       Int
+  stock       Float // Float to support weight (e.g., 10.5 kg)
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])
   unit        String?
@@ -117,7 +119,7 @@ model OrderItem {
   productId Int
   product   Product @relation(fields: [productId], references: [id])
 
-  quantity Int
+  quantity Float
   price    Float // Price *at moment of sale* (in case product price changes later)
   cost     Float // Cost *at moment of sale* (for profit calculation)
 }

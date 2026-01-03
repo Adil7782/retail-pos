@@ -1,10 +1,12 @@
 export interface Product {
     id: number;
     name: string;
-    barcode: string;
+    barcode?: string | null;
+    scalePlu?: string | null;
+    isWeighed?: boolean;
     price: number;
     // 'kg' | 'g' | 'l' | 'ml' | 'pcs'
-    unit: string;
+    unit: string | null;
 }
 
 export interface CartItem extends Product {

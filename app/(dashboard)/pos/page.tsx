@@ -18,6 +18,9 @@ const page = async () => {
     category: product.category?.name || "Uncategorized",
     categoryId: product.categoryId?.toString(),
     unit: product.unit || "pcs",
+    scalePlu: product.scalePlu || null,
+    isWeighed: product.isWeighed || false,
+    barcode: product.barcode || null,
   }))
 
   return (

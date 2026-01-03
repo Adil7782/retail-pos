@@ -43,9 +43,9 @@ const formSchema = z.object({
     name: z.string().min(1, {
         message: "Product name is required"
     }),
-    barcode: z.string().min(1, {
-        message: "Barcode is required"
-    }),
+    barcode: z.string().optional(),
+    scalePlu: z.string().optional(),
+    isWeighed: z.boolean().default(false),
     description: z.string().optional(),
     price: z.coerce.number().min(0, {
         message: "Price must be a positive number"
@@ -86,6 +86,8 @@ const AddProductForm = ({
         defaultValues: {
             name: initialData?.name || "",
             barcode: initialData?.barcode || "",
+            scalePlu: initialData?.scalePlu || "",
+            isWeighed: initialData?.isWeighed || false,
             description: initialData?.description || "",
             // Convert Decimals to string/number for the input
             price: initialData?.price ? parseFloat(initialData.price.toString()) : 0,
@@ -94,6 +96,8 @@ const AddProductForm = ({
             categoryId: initialData?.categoryId ? initialData.categoryId.toString() : "",
         },
     });
+
+    const isWeighed = form.watch("isWeighed");
 
     const { isSubmitting, isValid } = form.formState;
 
@@ -202,26 +206,75 @@ const AddProductForm = ({
                             )}
                         />
 
-                        {/* Barcode */}
-                        <FormField
-                            control={form.control}
-                            name="barcode"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-base">
-                                        Barcode / QR
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isSubmitting}
-                                            placeholder="Scan or enter code"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                        {/* Barcode and Scale PLU logic */}
+                        <div className="flex flex-col gap-4">
+                            <FormField
+                                control={form.control}
+                                name="isWeighed"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <input
+                                                type="checkbox"
+                                                checked={field.value}
+                                                onChange={field.onChange}
+                                                className="w-4 h-4 mt-1"
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel>
+                                                Weighted Item
+                                            </FormLabel>
+                                            <FormDescription>
+                                                This item is weighed at the scale (e.g. Vegetables)
+                                            </FormDescription>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {isWeighed ? (
+                                <FormField
+                                    control={form.control}
+                                    name="scalePlu"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-base">
+                                                Scale PLU (5 Digits)
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    disabled={isSubmitting}
+                                                    placeholder="e.g. 00101"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ) : (
+                                <FormField
+                                    control={form.control}
+                                    name="barcode"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-base">
+                                                Barcode / QR
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    disabled={isSubmitting}
+                                                    placeholder="Scan or enter code"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             )}
-                        />
+                        </div>
 
                         {/* Category Select */}
                         <FormField
