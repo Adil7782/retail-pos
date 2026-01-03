@@ -16,8 +16,9 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { ProductFormValues } from "./schema";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const units = [
     { label: "Kilogram (kg)", value: "kg" },
@@ -28,6 +29,7 @@ const units = [
     { label: "Packet (pkt)", value: "pkt" },
     { label: "Box (box)", value: "box" },
     { label: "Dozen (dz)", value: "dz" },
+    { label: "Ream (ream)", value: "ream" },
 ];
 
 export const ProductPricing = () => {
