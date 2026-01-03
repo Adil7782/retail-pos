@@ -992,6 +992,8 @@ export const ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   barcode: 'barcode',
+  scalePlu: 'scalePlu',
+  isWeighed: 'isWeighed',
   description: 'description',
   price: 'price',
   costPrice: 'costPrice',

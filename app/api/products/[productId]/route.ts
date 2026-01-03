@@ -7,7 +7,7 @@ export async function PUT(
 ) {
     try {
         const body = await req.json();
-        const { name, barcode, description, price, costPrice, stock, categoryId, unit } = body;
+        const { name, barcode, description, price, costPrice, stock, categoryId, unit, scalePlu, isWeighed } = body;
         const { productId } = await params;
 
         if (!productId) {
@@ -63,13 +63,15 @@ export async function PUT(
                 where: { id },
                 data: {
                     name,
-                    barcode,
+                    barcode: barcode || null, // Ensure barcode is null if empty string
                     description,
                     price,
                     costPrice,
                     stock,
                     categoryId,
-                    unit
+                    unit,
+                    scalePlu: scalePlu || null, // Added scalePlu
+                    isWeighed: isWeighed || false // Added isWeighed
                 }
             });
 

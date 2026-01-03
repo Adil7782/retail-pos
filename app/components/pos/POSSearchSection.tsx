@@ -4,10 +4,11 @@ import { Search, ScanBarcode } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Product } from "./types";
+import { parseBarcode } from "@/lib/barcode";
 
 interface POSSearchSectionProps {
     products: Product[];
-    onProductSelect: (product: Product) => void;
+    onProductSelect: (product: Product, quantity?: number) => void;
     isLocked: boolean; // e.g., when modal is open
 }
 
@@ -25,7 +26,8 @@ export default function POSSearchSection({
     const filteredProducts = products.filter(
         (p) =>
             p.name.toLowerCase().includes(query.toLowerCase()) ||
-            p.barcode.includes(query)
+            (p.barcode && p.barcode.includes(query)) ||
+            (p.scalePlu && p.scalePlu.includes(query))
     );
 
     useEffect(() => {
@@ -45,25 +47,55 @@ export default function POSSearchSection({
     }, [query]);
 
     // Clear query when a product is selected
-    const handleSelect = (product: Product) => {
+    const handleSelect = (product: Product, qty?: number) => {
         setQuery("");
-        onProductSelect(product);
+        onProductSelect(product, qty);
         // We'll rely on parent to handle focus management via isLocked prop changes
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (filteredProducts.length === 0) return;
+        // Allow Enter to proceed even if filteredProducts is empty (for partial scans/weighted codes)
 
         if (e.key === "ArrowDown") {
+            if (filteredProducts.length === 0) return;
             e.preventDefault();
             setFocusedIndex((prev) =>
                 prev < filteredProducts.length - 1 ? prev + 1 : prev
             );
         } else if (e.key === "ArrowUp") {
+            if (filteredProducts.length === 0) return;
             e.preventDefault();
             setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         } else if (e.key === "Enter") {
             e.preventDefault();
+
+            console.log("Enter pressed with query:", query);
+
+            // 1. Try resolving as a Scale Barcode
+            const parsed = parseBarcode(query);
+            console.log("Parsed Barcode:", parsed);
+
+            if (parsed.isWeighted && parsed.scalePlu) {
+                // Try exact match OR match without leading zeros
+                // e.g. barcode has "00502", product might have "502"
+                const targetPluNoZeros = parseInt(parsed.scalePlu || "0").toString();
+                console.log("Looking for Scale PLU:", parsed.scalePlu, "or", targetPluNoZeros);
+
+                const product = products.find(p => {
+                    const match = p.scalePlu === parsed.scalePlu || p.scalePlu === targetPluNoZeros;
+                    if (match) console.log("Found match:", p.name);
+                    return match;
+                });
+
+                if (product) {
+                    handleSelect(product, parsed.weight); // Pass weight from barcode
+                    return;
+                } else {
+                    console.log("No product found for Scale PLU");
+                }
+            }
+
+            // 2. Try Exact Match (Barcode)
             const exactMatch = products.find((p) => p.barcode === query);
             if (exactMatch) {
                 handleSelect(exactMatch);
@@ -146,7 +178,7 @@ export default function POSSearchSection({
             </div>
 
             {/* All Products as Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 p-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 p-2 overflow-y-auto max-h-[60vh]">
                 {products.map((product) => (
                     <button
                         key={product.id}

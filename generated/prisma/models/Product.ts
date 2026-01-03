@@ -46,6 +46,8 @@ export type ProductMinAggregateOutputType = {
   id: number | null
   name: string | null
   barcode: string | null
+  scalePlu: string | null
+  isWeighed: boolean | null
   description: string | null
   price: number | null
   costPrice: number | null
@@ -61,6 +63,8 @@ export type ProductMaxAggregateOutputType = {
   id: number | null
   name: string | null
   barcode: string | null
+  scalePlu: string | null
+  isWeighed: boolean | null
   description: string | null
   price: number | null
   costPrice: number | null
@@ -76,6 +80,8 @@ export type ProductCountAggregateOutputType = {
   id: number
   name: number
   barcode: number
+  scalePlu: number
+  isWeighed: number
   description: number
   price: number
   costPrice: number
@@ -109,6 +115,8 @@ export type ProductMinAggregateInputType = {
   id?: true
   name?: true
   barcode?: true
+  scalePlu?: true
+  isWeighed?: true
   description?: true
   price?: true
   costPrice?: true
@@ -124,6 +132,8 @@ export type ProductMaxAggregateInputType = {
   id?: true
   name?: true
   barcode?: true
+  scalePlu?: true
+  isWeighed?: true
   description?: true
   price?: true
   costPrice?: true
@@ -139,6 +149,8 @@ export type ProductCountAggregateInputType = {
   id?: true
   name?: true
   barcode?: true
+  scalePlu?: true
+  isWeighed?: true
   description?: true
   price?: true
   costPrice?: true
@@ -240,7 +252,9 @@ export type ProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ProductGroupByOutputType = {
   id: number
   name: string
-  barcode: string
+  barcode: string | null
+  scalePlu: string | null
+  isWeighed: boolean
   description: string | null
   price: number
   costPrice: number
@@ -278,11 +292,13 @@ export type ProductWhereInput = {
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   id?: Prisma.IntFilter<"Product"> | number
   name?: Prisma.StringFilter<"Product"> | string
-  barcode?: Prisma.StringFilter<"Product"> | string
+  barcode?: Prisma.StringNullableFilter<"Product"> | string | null
+  scalePlu?: Prisma.StringNullableFilter<"Product"> | string | null
+  isWeighed?: Prisma.BoolFilter<"Product"> | boolean
   description?: Prisma.StringNullableFilter<"Product"> | string | null
   price?: Prisma.FloatFilter<"Product"> | number
   costPrice?: Prisma.FloatFilter<"Product"> | number
-  stock?: Prisma.IntFilter<"Product"> | number
+  stock?: Prisma.FloatFilter<"Product"> | number
   categoryId?: Prisma.IntNullableFilter<"Product"> | number | null
   unit?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
@@ -296,7 +312,9 @@ export type ProductWhereInput = {
 export type ProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  barcode?: Prisma.SortOrder
+  barcode?: Prisma.SortOrderInput | Prisma.SortOrder
+  scalePlu?: Prisma.SortOrderInput | Prisma.SortOrder
+  isWeighed?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
@@ -314,14 +332,16 @@ export type ProductOrderByWithRelationInput = {
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   barcode?: string
+  scalePlu?: string
   AND?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   name?: Prisma.StringFilter<"Product"> | string
+  isWeighed?: Prisma.BoolFilter<"Product"> | boolean
   description?: Prisma.StringNullableFilter<"Product"> | string | null
   price?: Prisma.FloatFilter<"Product"> | number
   costPrice?: Prisma.FloatFilter<"Product"> | number
-  stock?: Prisma.IntFilter<"Product"> | number
+  stock?: Prisma.FloatFilter<"Product"> | number
   categoryId?: Prisma.IntNullableFilter<"Product"> | number | null
   unit?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
@@ -330,12 +350,14 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   orderItems?: Prisma.OrderItemListRelationFilter
   productPrices?: Prisma.ProductPriceHistoryListRelationFilter
-}, "id" | "barcode">
+}, "id" | "barcode" | "scalePlu">
 
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  barcode?: Prisma.SortOrder
+  barcode?: Prisma.SortOrderInput | Prisma.SortOrder
+  scalePlu?: Prisma.SortOrderInput | Prisma.SortOrder
+  isWeighed?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
@@ -358,11 +380,13 @@ export type ProductScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProductScalarWhereWithAggregatesInput | Prisma.ProductScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Product"> | number
   name?: Prisma.StringWithAggregatesFilter<"Product"> | string
-  barcode?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  barcode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  scalePlu?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  isWeighed?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   description?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   price?: Prisma.FloatWithAggregatesFilter<"Product"> | number
   costPrice?: Prisma.FloatWithAggregatesFilter<"Product"> | number
-  stock?: Prisma.IntWithAggregatesFilter<"Product"> | number
+  stock?: Prisma.FloatWithAggregatesFilter<"Product"> | number
   categoryId?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   unit?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
@@ -372,7 +396,9 @@ export type ProductScalarWhereWithAggregatesInput = {
 
 export type ProductCreateInput = {
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -389,7 +415,9 @@ export type ProductCreateInput = {
 export type ProductUncheckedCreateInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -405,11 +433,13 @@ export type ProductUncheckedCreateInput = {
 
 export type ProductUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -422,11 +452,13 @@ export type ProductUpdateInput = {
 export type ProductUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -439,7 +471,9 @@ export type ProductUncheckedUpdateInput = {
 export type ProductCreateManyInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -453,11 +487,13 @@ export type ProductCreateManyInput = {
 
 export type ProductUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -467,11 +503,13 @@ export type ProductUpdateManyMutationInput = {
 export type ProductUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -493,6 +531,8 @@ export type ProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   barcode?: Prisma.SortOrder
+  scalePlu?: Prisma.SortOrder
+  isWeighed?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
@@ -516,6 +556,8 @@ export type ProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   barcode?: Prisma.SortOrder
+  scalePlu?: Prisma.SortOrder
+  isWeighed?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
@@ -531,6 +573,8 @@ export type ProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   barcode?: Prisma.SortOrder
+  scalePlu?: Prisma.SortOrder
+  isWeighed?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
@@ -647,7 +691,9 @@ export type ProductUpdateOneRequiredWithoutOrderItemsNestedInput = {
 
 export type ProductCreateWithoutCategoryInput = {
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -663,7 +709,9 @@ export type ProductCreateWithoutCategoryInput = {
 export type ProductUncheckedCreateWithoutCategoryInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -708,11 +756,13 @@ export type ProductScalarWhereInput = {
   NOT?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
   id?: Prisma.IntFilter<"Product"> | number
   name?: Prisma.StringFilter<"Product"> | string
-  barcode?: Prisma.StringFilter<"Product"> | string
+  barcode?: Prisma.StringNullableFilter<"Product"> | string | null
+  scalePlu?: Prisma.StringNullableFilter<"Product"> | string | null
+  isWeighed?: Prisma.BoolFilter<"Product"> | boolean
   description?: Prisma.StringNullableFilter<"Product"> | string | null
   price?: Prisma.FloatFilter<"Product"> | number
   costPrice?: Prisma.FloatFilter<"Product"> | number
-  stock?: Prisma.IntFilter<"Product"> | number
+  stock?: Prisma.FloatFilter<"Product"> | number
   categoryId?: Prisma.IntNullableFilter<"Product"> | number | null
   unit?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
@@ -722,7 +772,9 @@ export type ProductScalarWhereInput = {
 
 export type ProductCreateWithoutProductPricesInput = {
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -738,7 +790,9 @@ export type ProductCreateWithoutProductPricesInput = {
 export type ProductUncheckedCreateWithoutProductPricesInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -769,11 +823,13 @@ export type ProductUpdateToOneWithWhereWithoutProductPricesInput = {
 
 export type ProductUpdateWithoutProductPricesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -785,11 +841,13 @@ export type ProductUpdateWithoutProductPricesInput = {
 export type ProductUncheckedUpdateWithoutProductPricesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -800,7 +858,9 @@ export type ProductUncheckedUpdateWithoutProductPricesInput = {
 
 export type ProductCreateWithoutOrderItemsInput = {
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -816,7 +876,9 @@ export type ProductCreateWithoutOrderItemsInput = {
 export type ProductUncheckedCreateWithoutOrderItemsInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -847,11 +909,13 @@ export type ProductUpdateToOneWithWhereWithoutOrderItemsInput = {
 
 export type ProductUpdateWithoutOrderItemsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -863,11 +927,13 @@ export type ProductUpdateWithoutOrderItemsInput = {
 export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -879,7 +945,9 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
 export type ProductCreateManyCategoryInput = {
   id?: number
   name: string
-  barcode: string
+  barcode?: string | null
+  scalePlu?: string | null
+  isWeighed?: boolean
   description?: string | null
   price: number
   costPrice: number
@@ -892,11 +960,13 @@ export type ProductCreateManyCategoryInput = {
 
 export type ProductUpdateWithoutCategoryInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -908,11 +978,13 @@ export type ProductUpdateWithoutCategoryInput = {
 export type ProductUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -924,11 +996,13 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  barcode?: Prisma.StringFieldUpdateOperationsInput | string
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scalePlu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isWeighed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   costPrice?: Prisma.FloatFieldUpdateOperationsInput | number
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  stock?: Prisma.FloatFieldUpdateOperationsInput | number
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -979,6 +1053,8 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   name?: boolean
   barcode?: boolean
+  scalePlu?: boolean
+  isWeighed?: boolean
   description?: boolean
   price?: boolean
   costPrice?: boolean
@@ -998,6 +1074,8 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   barcode?: boolean
+  scalePlu?: boolean
+  isWeighed?: boolean
   description?: boolean
   price?: boolean
   costPrice?: boolean
@@ -1014,6 +1092,8 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   barcode?: boolean
+  scalePlu?: boolean
+  isWeighed?: boolean
   description?: boolean
   price?: boolean
   costPrice?: boolean
@@ -1030,6 +1110,8 @@ export type ProductSelectScalar = {
   id?: boolean
   name?: boolean
   barcode?: boolean
+  scalePlu?: boolean
+  isWeighed?: boolean
   description?: boolean
   price?: boolean
   costPrice?: boolean
@@ -1041,7 +1123,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "barcode" | "description" | "price" | "costPrice" | "stock" | "categoryId" | "unit" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "barcode" | "scalePlu" | "isWeighed" | "description" | "price" | "costPrice" | "stock" | "categoryId" | "unit" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Product$categoryArgs<ExtArgs>
   orderItems?: boolean | Prisma.Product$orderItemsArgs<ExtArgs>
@@ -1065,7 +1147,9 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
-    barcode: string
+    barcode: string | null
+    scalePlu: string | null
+    isWeighed: boolean
     description: string | null
     price: number
     costPrice: number
@@ -1504,10 +1588,12 @@ export interface ProductFieldRefs {
   readonly id: Prisma.FieldRef<"Product", 'Int'>
   readonly name: Prisma.FieldRef<"Product", 'String'>
   readonly barcode: Prisma.FieldRef<"Product", 'String'>
+  readonly scalePlu: Prisma.FieldRef<"Product", 'String'>
+  readonly isWeighed: Prisma.FieldRef<"Product", 'Boolean'>
   readonly description: Prisma.FieldRef<"Product", 'String'>
   readonly price: Prisma.FieldRef<"Product", 'Float'>
   readonly costPrice: Prisma.FieldRef<"Product", 'Float'>
-  readonly stock: Prisma.FieldRef<"Product", 'Int'>
+  readonly stock: Prisma.FieldRef<"Product", 'Float'>
   readonly categoryId: Prisma.FieldRef<"Product", 'Int'>
   readonly unit: Prisma.FieldRef<"Product", 'String'>
   readonly isActive: Prisma.FieldRef<"Product", 'Boolean'>

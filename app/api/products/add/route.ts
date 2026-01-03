@@ -11,41 +11,55 @@ export async function POST(
 
 
     try {
-        const { name, barcode, description, price, costPrice, stock, categoryId,unit } = await req.json();
-        console.log(name, barcode, description, price, costPrice, stock, categoryId,unit)
+        const body = await req.json();
+        const { name, barcode, description, price, costPrice, stock, categoryId, unit, scalePlu, isWeighed } = body;
+
+        console.log(name, barcode, description, price, costPrice, stock, categoryId, unit, scalePlu, isWeighed)
         let id = generateUniqueId();
         
-        if (!barcode || !name) {
-  return new NextResponse("Barcode and name are required", { status: 400 });
-}
-        const existingBarcode = await db.product.findUnique({
-            where: {
-                barcode
-            }
-        });
-
-        console.log(existingBarcode)
-        const existingName = await db.product.findFirst({
-            where: {
-                name
-            }
-        });
-
-        if (existingBarcode || existingName) {
-            return new NextResponse("Product is already registered", { status: 409 })
+        if (!name) {
+             return new NextResponse("Name is required", { status: 400 });
         }
 
+        // Validate Barcode uniqueness if provided
+        if (barcode) {
+            const existingBarcode = await db.product.findUnique({
+                where: {
+                    barcode: barcode
+                }
+            });
+
+            if (existingBarcode) {
+                return new NextResponse("Barcode already exists", { status: 409 });
+            }
+        }
+
+        // Validate Scale PLU uniqueness if provided
+        if (isWeighed && scalePlu) {
+            const existingPlu = await db.product.findUnique({
+                where: {
+                    scalePlu: scalePlu
+                }
+            });
+
+            if (existingPlu) {
+                return new NextResponse("Scale PLU already exists", { status: 409 });
+            }
+        }
+        
         const newProduct = await db.product.create({
             data: {
-               name,
-               barcode,
-               description,
-               price,
-               costPrice,
-               stock,
-               categoryId,
-               unit,
-               productPrices: {
+                name,
+                barcode: barcode || null,
+                scalePlu: scalePlu || null,
+                isWeighed: isWeighed || false,
+                description,
+                price,
+                costPrice,
+                stock,
+                categoryId,
+                unit,
+                productPrices: {
                  create: {
                    price,
                    costPrice

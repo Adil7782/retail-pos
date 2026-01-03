@@ -81,7 +81,7 @@ export default function POSQuantityModal({
                     </div>
 
                     {/* Quick Select Buttons for Kg/L */}
-                    {UNIT_PRESETS[product.unit] && (
+                    {product.unit && UNIT_PRESETS[product.unit] && (
                         <div className="grid grid-cols-3 gap-2">
                             {UNIT_PRESETS[product.unit].map((preset) => (
                                 <button
