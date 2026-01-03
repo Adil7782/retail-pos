@@ -1,4 +1,4 @@
-import AddProductForm from '@/app/components/forms/create-product'
+import AddProductForm from '@/app/components/forms/product-form'
 import { db } from '@/lib/db'
 import React from 'react'
 

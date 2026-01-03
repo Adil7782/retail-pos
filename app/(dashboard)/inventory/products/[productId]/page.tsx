@@ -1,4 +1,4 @@
-import AddProductForm from "@/app/components/forms/create-product"
+import AddProductForm from '@/app/components/forms/product-form'
 import { db } from "@/lib/db"
 import React from "react"
 
@@ -25,7 +25,7 @@ const ProductId = async ({
                 mode="update"
                 productId={productId}
                 initialData={product}
-                categories={categories  }
+                categories={categories}
             />
         </div>
     )

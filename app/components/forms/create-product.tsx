@@ -152,7 +152,7 @@ const AddProductForm = ({
                     variant: "success",
                 });
                 router.refresh();
-                router.push('/products');
+                router.push('/inventory/products');
             } catch (error: any) {
                 if (error.response && error.response.status === 409) {
                     toast({
@@ -450,7 +450,7 @@ const AddProductForm = ({
                         </div>
                         :
                         <div className="mt-4 flex justify-between gap-2">
-                            <Link href="/products">
+                            <Link href="/inventory/products">
                                 <Button variant='outline' className="flex gap-2 pr-5 text-red-600">
                                     Cancel
                                 </Button>
