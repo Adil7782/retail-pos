@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Product, CartItem } from "@/app/components/pos/types";
+import { Product, CartItem, OTHER_PRODUCT_ID } from "@/app/components/pos/types";
+import { useEffect, useCallback } from "react";
 import POSSearchSection from "@/app/components/pos/POSSearchSection";
 import POSCartSection from "@/app/components/pos/POSCartSection";
 import POSQuantityModal from "@/app/components/pos/POSQuantityModal";
@@ -12,6 +13,8 @@ export default function POSPage({ products }: { products: Product[] }) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isQtyModalOpen, setIsQtyModalOpen] = useState(false);
     const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [activeCartItemId, setActiveCartItemId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
@@ -24,27 +27,57 @@ export default function POSPage({ products }: { products: Product[] }) {
     // 1. Initiate Add (Open Modal) or Direct Add
     const initiateAddToCart = (product: Product, quantity?: number) => {
         if (quantity !== undefined && quantity > 0) {
-            handleConfirmAdd(product, quantity);
+            handleConfirmAdd(product, quantity, product.price);
             return;
         }
         setPendingProduct(product);
+        setModalMode('add');
         setIsQtyModalOpen(true);
     };
 
-    // 2. Confirm Add (Update Cart)
-    const handleConfirmAdd = (product: Product, qtyToAdd: number) => {
+    // New: Edit Cart Item
+    const initiateEditCartItem = (item: CartItem) => {
+        setPendingProduct(item);
+        setModalMode('edit');
+        setIsQtyModalOpen(true);
+    };
+
+    // 2. Confirm Add/Edit (Update Cart)
+    const handleConfirmAdd = (product: Product, qtyInput: number, priceInput: number) => {
         setCart((prev) => {
+            // CASE 1: EDIT MODE - Update specific item
+            if (modalMode === 'edit') {
+                return prev.map((item) =>
+                    item.id === product.id
+                        ? { ...item, qty: qtyInput, price: priceInput }
+                        : item
+                );
+            }
+
+            // CASE 2: ADD "OTHER" ITEM - Always creates new entry
+            if (product.id === OTHER_PRODUCT_ID) {
+                const newItem: CartItem = {
+                    ...product,
+                    id: Date.now(), // Generate unique ID
+                    price: priceInput,
+                    qty: qtyInput,
+                    name: "Manual Item"
+                };
+                return [...prev, newItem];
+            }
+
+            // CASE 3: ADD NORMAL ITEM
             const existing = prev.find((item) => item.id === product.id);
             if (existing) {
                 // Update existing item
                 return prev.map((item) =>
                     item.id === product.id
-                        ? { ...item, qty: item.qty + qtyToAdd }
+                        ? { ...item, qty: item.qty + qtyInput } // Add to existing qty
                         : item
                 );
             }
             // Add new item
-            return [...prev, { ...product, qty: qtyToAdd }];
+            return [...prev, { ...product, qty: qtyInput, price: priceInput }];
         });
 
         closeQtyModal();
@@ -53,7 +86,11 @@ export default function POSPage({ products }: { products: Product[] }) {
     const closeQtyModal = () => {
         setIsQtyModalOpen(false);
         setPendingProduct(null);
+        setModalMode('add');
+        setActiveCartItemId(null);
     };
+
+
 
     // 3. Update Existing Cart Qty
     const updateCartQty = (id: number, delta: number) => {
@@ -126,18 +163,41 @@ export default function POSPage({ products }: { products: Product[] }) {
         }
     };
 
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "F10") {
+                e.preventDefault();
+                if (activeCartItemId) {
+                    const item = cart.find(i => i.id === activeCartItemId);
+                    if (item) {
+                        initiateEditCartItem(item);
+                    }
+                }
+            } else if (e.key === "F11") {
+                e.preventDefault();
+                openPaymentModal();
+            }
+        };
+
+        window.addEventListener("keydown", handleGlobalKeyDown);
+        return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+    }, [activeCartItemId, cart]);
+
     return (
         <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 p-4 bg-slate-50 overflow-hidden">
             {/* --- LEFT SECTION: SEARCH & KEYBOARD INTERFACE --- */}
             <POSSearchSection
                 products={products}
                 onProductSelect={initiateAddToCart}
-                isLocked={isQtyModalOpen}
+                isLocked={isQtyModalOpen || isPaymentModalOpen}
             />
 
             {/* --- RIGHT SECTION: CART --- */}
             <POSCartSection
                 cart={cart}
+                activeItemId={activeCartItemId}
+                onSelect={(id) => setActiveCartItemId(id)}
                 onUpdateQty={updateCartQty}
                 onRemove={removeFromCart}
                 onClearCart={() => setCart([])}
@@ -149,6 +209,8 @@ export default function POSPage({ products }: { products: Product[] }) {
             <POSQuantityModal
                 isOpen={isQtyModalOpen}
                 product={pendingProduct}
+                initialQty={modalMode === 'edit' && pendingProduct ? (pendingProduct as CartItem).qty : 1}
+                allowPriceEdit={modalMode === 'edit' || (pendingProduct?.id === OTHER_PRODUCT_ID)}
                 onClose={closeQtyModal}
                 onConfirm={handleConfirmAdd}
             />

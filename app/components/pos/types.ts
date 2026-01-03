@@ -13,6 +13,8 @@ export interface CartItem extends Product {
     qty: number;
 }
 
+export const OTHER_PRODUCT_ID = 99999;
+
 export const UNIT_PRESETS: Record<string, { label: string; value: number }[]> = {
     kg: [
         { label: "100g", value: 0.1 },

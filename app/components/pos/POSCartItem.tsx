@@ -2,16 +2,27 @@
 
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem } from "./types";
+import { cn } from "@/lib/utils";
 
 interface POSCartItemProps {
     item: CartItem;
+    isActive?: boolean;
+    onClick?: () => void;
     onUpdateQty: (id: number, delta: number) => void;
     onRemove: (id: number) => void;
 }
 
-export default function POSCartItem({ item, onUpdateQty, onRemove }: POSCartItemProps) {
+export default function POSCartItem({ item, isActive, onClick, onUpdateQty, onRemove }: POSCartItemProps) {
     return (
-        <div className="flex flex-col p-3 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition group">
+        <div
+            onClick={onClick}
+            className={cn(
+                "flex flex-col p-3 rounded-xl border bg-white shadow-sm transition group cursor-pointer",
+                isActive
+                    ? "border-blue-500 ring-1 ring-blue-500 bg-blue-50/30"
+                    : "border-slate-100 hover:shadow-md hover:border-slate-200"
+            )}
+        >
             <div className="flex justify-between items-start mb-2">
                 <span className="font-medium text-slate-700 w-3/4 truncate">
                     {item.name}
