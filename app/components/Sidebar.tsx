@@ -1,15 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  ShoppingCart, 
-  Package, 
-  Users, 
-  Settings, 
-  LogOut, 
-  ChevronLeft, 
-  ChevronRight 
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Package,
+  Users,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Barcode
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "POS", href: "/pos", icon: ShoppingCart },
   { name: "Inventory", href: "/inventory", icon: Package },
+  { name: "Barcode Simulator", href: "/tools/scale-simulator", icon: Barcode },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
@@ -77,7 +79,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
               >
                 {item.name}
               </span>
-              
+
               {/* Tooltip for collapsed mode */}
               {isCollapsed && (
                 <div className="absolute left-16 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none z-50 whitespace-nowrap">
@@ -92,8 +94,8 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       {/* Footer / Logout */}
       <div className="p-4 border-t border-slate-800">
         <button className={cn(
-            "flex items-center gap-4 w-full text-red-400 hover:bg-slate-800 p-2 rounded-lg transition",
-            isCollapsed && "justify-center"
+          "flex items-center gap-4 w-full text-red-400 hover:bg-slate-800 p-2 rounded-lg transition",
+          isCollapsed && "justify-center"
         )}>
           <LogOut size={22} />
           {!isCollapsed && <span>Logout</span>}
