@@ -32,7 +32,7 @@ export default async function Home() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard title="Total Sales" value={totalSales} icon={Coins} color="bg-green-500" />
+          <StatCard title="Total Sales" value={totalSales.toFixed(2)} icon={Coins} color="bg-green-500" />
           <StatCard title="Total Orders" value={totalOrders} icon={ShoppingBag} color="bg-blue-500" />
           <StatCard title="Total Products" value={products} icon={Box} color="bg-purple-500" />
 

@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Barcode
+  Barcode,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +26,7 @@ const navItems = [
   { name: "POS", href: "/pos", icon: ShoppingCart },
   { name: "Inventory", href: "/inventory", icon: Package },
   { name: "Barcode Simulator", href: "/tools/scale-simulator", icon: Barcode },
+  { name: "Reports", href: "/reports", icon: FileText },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
