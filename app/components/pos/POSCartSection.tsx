@@ -3,6 +3,7 @@
 import { CreditCard, ScanBarcode, Trash2 } from "lucide-react";
 import { CartItem } from "./types";
 import POSCartItem from "./POSCartItem";
+import { useState } from "react";
 
 interface POSCartSectionProps {
     cart: CartItem[];
@@ -27,6 +28,13 @@ export default function POSCartSection({
 }: POSCartSectionProps) {
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
     const total = subtotal;
+
+    const [showCancelModal, setShowCancelModal] = useState(false);
+
+    const handleCancel = () => {
+        console.log("Cancel");
+        setShowCancelModal(true);
+    };
 
     return (
         <div className="w-full md:w-[400px] bg-white rounded-2xl shadow-lg border border-slate-100 flex flex-col h-full z-10">
@@ -76,12 +84,38 @@ export default function POSCartSection({
 
                 <div className="grid grid-cols-2 gap-2 pt-2">
                     <button
-                        onClick={onClearCart}
+                        onClick={handleCancel}
                         disabled={isLoading}
                         className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition disabled:opacity-50"
                     >
                         <Trash2 size={18} /> Cancel
                     </button>
+                    {
+                        showCancelModal && (
+                            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60 p-4 animate-in fade-in duration-200">
+                                <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-xs text-center animate-in zoom-in-95">
+                                    <h4 className="text-lg font-bold text-slate-800 mb-2">Cancel Action?</h4>
+                                    <p className="text-sm text-slate-500 mb-6">
+                                        Are you sure you want to cancel? This will discard your input.
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setShowCancelModal(false)}
+                                            className="flex-1 py-2 px-4 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50 transition"
+                                        >
+                                            No
+                                        </button>
+                                        <button
+                                            onClick={() => { onClearCart(); setShowCancelModal(false) }}
+                                            className="flex-1 py-2 px-4 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+                                        >
+                                            Yes, Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
                     <button
                         onClick={onCheckout}
                         disabled={isLoading || cart.length === 0}

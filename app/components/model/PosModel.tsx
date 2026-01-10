@@ -84,6 +84,8 @@ export default function POSPage({ products }: { products: Product[] }) {
     };
 
     const closeQtyModal = () => {
+        console.log("closeQtyModal");
+
         setIsQtyModalOpen(false);
         setPendingProduct(null);
         setModalMode('add');
